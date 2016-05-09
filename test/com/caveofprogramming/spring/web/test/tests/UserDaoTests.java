@@ -1,6 +1,7 @@
 package com.caveofprogramming.spring.web.test.tests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
@@ -25,35 +26,65 @@ import com.caveofprogramming.spring.web.dao.UsersDao;
 		"classpath:com/caveofprogramming/spring/web/test/config/datasource.xml" })
 @RunWith(SpringJUnit4ClassRunner.class)
 public class UserDaoTests {
-	
+
 	@Autowired
 	private UsersDao userDao;
-	
+
 	@Autowired
 	private DataSource dataSource;
-	
+
+	User user1 = new User("akbarhirani", "akbar hirani", "123456",
+			"akbar@hirani.com", true, "ROLE_USER");
+	User user2 = new User("deanwinchester", "dean winchester", "123456",
+			"akbar@hirani.com", true, "ROLE_ADMIN");
+	User user3 = new User("barryallen", "barry allen", "123456",
+			"akbar@hirani.com", true, "ROLE_USER");
+	User user4 = new User("oliverqueen", "oliver queen", "123456",
+			"akbar@hirani.com", true, "user");
+
 	@Before
-	public void init(){
+	public void init() {
 		JdbcTemplate jdbc = new JdbcTemplate(dataSource);
-		
+
 		jdbc.execute("delete from offer");
 		jdbc.execute("delete from users");
 	}
 
-	@Test
+	@Test // create user
+	public void testCreate() {
+		userDao.create(user1);
+		
+		List<User> users1 = userDao.getAllUsers();
+
+		assertEquals("Number of users should be 1", 1, users1.size());
+		
+		assertEquals("Inserted user should match retreuved",user1, users1.get(0));
+
+		userDao.create(user2);
+		userDao.create(user3);
+		userDao.create(user4);
+		
+		List<User> users2 = userDao.getAllUsers();
+
+		assertEquals("Number of users should be 1",4, users2.size());
+	
+	}
+	@Test // Reimplement this
 	public void testCreateUser() {
-		User user = new User("akbar","Akbar Hirani","123456","akbar@123.com",true,"user");
-		
-		assertTrue("USer creation should return true",userDao.create(user));
-		
+		User user = new User("akbar123", "Akbar Hirani", "123456",
+				"akbar@123.com", true, "ROLE_USER");
+
+		userDao.create(user);
+
 		List<User> users = userDao.getAllUsers();
-		
+
 		assertEquals("Number of users should be 1", 1, users.size());
-	
-		assertTrue("User should exist.",userDao.exists(user.getUsername()));
-	
-		assertEquals("Created user should be identical to retreived user", user, users.get(0));
-	
+
+		assertTrue("User should exist.", userDao.exists(user.getUsername()));
+
+		assertEquals("Created user should be identical to retreived user",
+				user, users.get(0));
+
 	}
 
 }

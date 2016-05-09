@@ -15,26 +15,32 @@ import com.caveofprogramming.spring.web.validation.ValidEmail;
 @Table(name="users")
 public class User {
 
-	@NotBlank
-	@Size(min = 8, max = 20)
-	@Pattern(regexp = "^\\w{8,}$")
+	@NotBlank(groups={PersistanceValidationGroup.class, FormValidationGroup.class})
+	@Size(min = 8, max = 15, groups={PersistanceValidationGroup.class, FormValidationGroup.class})
+	@Pattern(regexp = "^\\w{8,}$", groups={PersistanceValidationGroup.class, FormValidationGroup.class})
 	@Id
 	@Column(name="username")
 	private String username;
 	
-	@NotBlank
-	@Pattern(regexp="^\\S+$")
-	@Size(min=6, max=20)
+	@NotBlank(groups={PersistanceValidationGroup.class, FormValidationGroup.class})
+	@Pattern(regexp="^\\S+$", groups={PersistanceValidationGroup.class, FormValidationGroup.class})
+	@Size(min=6, max=15, groups={FormValidationGroup.class})
+	@Column(name="password")
 	private String password;
 	
-	@ValidEmail
+	@ValidEmail(groups={PersistanceValidationGroup.class, FormValidationGroup.class})
+	@Column(name="email")
 	private String email;
 	
+	@Column(name="enabled")
 	private boolean enabled = false;
+	
+	@Column(name="authority")
 	private String authority;
 	
-	@NotBlank
-	@Size(min = 5, max = 60)
+	@NotBlank(groups={PersistanceValidationGroup.class, FormValidationGroup.class})
+	@Size(min = 5, max = 60, groups={PersistanceValidationGroup.class, FormValidationGroup.class})
+	@Column(name="name")
 	private String name;
 
 	public User() {

@@ -34,22 +34,10 @@ public class UsersDao {
 		return sessionFactory.getCurrentSession();
 	}
 	@Transactional
-	public boolean create(User user) {
+	public void create(User user) {
 
-		// BeanPropertySqlParameterSource params = new
-		// BeanPropertySqlParameterSource(user);
-
-		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("username", user.getUsername());
-		params.addValue("password", passwordEncoder.encode(user.getPassword()));
-		params.addValue("email", user.getEmail());
-		params.addValue("enabled", user.isEnabled());
-		params.addValue("authority", user.getAuthority());
-		params.addValue("name", user.getName());
-
-		return jdbc
-				.update("insert into users (username, name, password, email, enabled, authority) values (:username, :name, :password, :email, :enabled, :authority)",
-						params) == 1;
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
+		session().save(user);
 	}
 
 	public boolean exists(String username) {
