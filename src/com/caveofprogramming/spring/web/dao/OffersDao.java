@@ -5,11 +5,11 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -37,34 +37,50 @@ public class OffersDao {
 		this.jdbc = new NamedParameterJdbcTemplate(jdbc);
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<Offer> getOffers() {
 		Criteria crit = session().createCriteria(Offer.class);
-		
+
 		crit.createAlias("user", "u").add(Restrictions.eq("u.enabled", true));
-		
+
 		return crit.list();
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<Offer> getOffers(String username) {
 
-		return jdbc
-				.query("select * from offer, users where offer.username=users.username and users.enabled=true and offer.username=:username",
-						new MapSqlParameterSource("username", username),
-						new OfferRowMapper());
+		Criteria crit = session().createCriteria(Offer.class);
+
+		crit.createAlias("user", "u");
+		crit.add(Restrictions.eq("u.enabled", true));
+		crit.add(Restrictions.eq("u.username", username));
+
+		return crit.list();
 	}
 
-	public boolean update(Offer offer) {
-		BeanPropertySqlParameterSource params = new BeanPropertySqlParameterSource(
-				offer);
+//	REPLACED BOTH OF THESE METHODS TO REFACTOR AS "saveOrUpdate" BELOW
+//	public void update(Offer offer) {
+//		session().update(offer);
+//	}
+//
+//	public void create(Offer offer) {
+//
+//		session().save(offer);
+//	}
 
-		return jdbc.update("update offer set text=:text where id=:id", params) == 1;
+	// Refactored method
+	public void saveOrUpdate(Offer offer) {
+
+		session().saveOrUpdate(offer);
 	}
-
-	public void create(Offer offer) {
-
-		session().save(offer);
-	}
-
+	
+	// This method is not being used but the way to change to hibernate is:
+	// search for hibernate batch
+	// use the same session().save() method we used in create
+	// use it in a loop
+	// set a property that checks the jdbc batch update size
+	// also need to flush the session after a few inserts.
+	
 	@Transactional
 	public int[] create(List<Offer> offers) {
 
@@ -77,9 +93,9 @@ public class OffersDao {
 	}
 
 	public boolean delete(int id) {
-		MapSqlParameterSource params = new MapSqlParameterSource("id", id);
-
-		return jdbc.update("delete from offer where id=:id", params) == 1;
+		Query query = session().createQuery("delete from Offer where id=:id");
+		query.setLong("id", id);
+		return query.executeUpdate() == 1;
 	}
 
 	public Offer getOffer(int id) {
