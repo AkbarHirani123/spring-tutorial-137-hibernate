@@ -37,6 +37,23 @@ public class OffersDaoTests {
 
 	@Autowired
 	private DataSource dataSource;
+	
+	private User user1 = new User("akbarhirani", "akbar hirani", "123456",
+			"akbar@hirani.com", true, "ROLE_USER");
+	private User user2 = new User("deanwinchester", "dean winchester", "123456",
+			"akbar@hirani.com", true, "ROLE_ADMIN");
+	private User user3 = new User("barryallen", "barry allen", "123456",
+			"akbar@hirani.com", true, "ROLE_USER");
+	private User user4 = new User("oliverqueen", "oliver queen", "123456",
+			"akbar@hirani.com", false, "user");
+	
+	private Offer offer1 = new Offer(user1, "This is a test offer");
+	private Offer offer2 = new Offer(user1, "This is a test offer2");
+	private Offer offer3 = new Offer(user2, "This is a test offer3");
+	private Offer offer4 = new Offer(user3, "This is a test offer4");
+	private Offer offer5 = new Offer(user3, "This is a test offer5");
+	private Offer offer6 = new Offer(user3, "This is a test offer6");
+	private Offer offer7 = new Offer(user4, "This is a test offer7");
 
 	@Before
 	public void init() {
@@ -47,15 +64,46 @@ public class OffersDaoTests {
 	}
 
 	@Test
+	public void testCreate(){
+		userDao.create(user1);
+		userDao.create(user2);
+		userDao.create(user3);
+		userDao.create(user4);
+		
+		offersDao.create(offer1);
+		
+		List<Offer> offers1 = offersDao.getOffers();
+		
+		assertEquals("Number of offers should be 1", 1, offers1.size());
+
+		assertEquals("Retrieved offer should equal inserted offer", offer1, offers1.get(0));
+		
+		offersDao.create(offer2);
+		offersDao.create(offer3);
+		offersDao.create(offer4);
+		offersDao.create(offer5);
+		offersDao.create(offer6);
+		offersDao.create(offer7);
+		
+		List<Offer> offers = offersDao.getOffers();
+		
+		assertEquals("Number of offers should be 6", 6, offers.size());
+
+	}
+	
+	@Test
 	public void testOffer() {
 		User user = new User("akbar123", "Akbar Hirani", "123456",
 				"akbar@123.com", true, "user");
 
 		userDao.create(user);
+		
+		assertTrue("Offer update should be true.", userDao.exists(user.getUsername()));
 
-		Offer offer = new Offer(user, "user");
 
-		assertTrue("Offer creation should return true", offersDao.create(offer));
+		Offer offer = new Offer(user, "This is a test offer");
+
+		offersDao.create(offer);
 
 		List<Offer> offers = offersDao.getOffers();
 
@@ -77,7 +125,7 @@ public class OffersDaoTests {
 		//Test get by ID
 		Offer offer2 = new Offer(user, "This is a test offer.");
 
-		assertTrue("Offer 2 creation should return true.", offersDao.create(offer2));
+		offersDao.create(offer2);
 		
 		List<Offer> useroffers = offersDao.getOffers(user.getUsername());
 		assertEquals("Number of offer should be 2.", 2, useroffers.size());

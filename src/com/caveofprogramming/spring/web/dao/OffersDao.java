@@ -4,6 +4,10 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -15,10 +19,18 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
+@Transactional
 @Component("offersDao")
 public class OffersDao {
 
 	private NamedParameterJdbcTemplate jdbc;
+
+	@Autowired
+	private SessionFactory sessionFactory;
+
+	public Session session() {
+		return sessionFactory.getCurrentSession();
+	}
 
 	@Autowired
 	public void setDataSource(DataSource jdbc) {
@@ -26,10 +38,11 @@ public class OffersDao {
 	}
 
 	public List<Offer> getOffers() {
-
-		return jdbc
-				.query("select * from offer, users where offer.username=users.username and users.enabled=true",
-						new OfferRowMapper());
+		Criteria crit = session().createCriteria(Offer.class);
+		
+		crit.createAlias("user", "u").add(Restrictions.eq("u.enabled", true));
+		
+		return crit.list();
 	}
 
 	public List<Offer> getOffers(String username) {
@@ -47,14 +60,9 @@ public class OffersDao {
 		return jdbc.update("update offer set text=:text where id=:id", params) == 1;
 	}
 
-	public boolean create(Offer offer) {
+	public void create(Offer offer) {
 
-		BeanPropertySqlParameterSource params = new BeanPropertySqlParameterSource(
-				offer);
-
-		return jdbc.update(
-				"insert into offer (text, username) values (:text, :username)",
-				params) == 1;
+		session().save(offer);
 	}
 
 	@Transactional

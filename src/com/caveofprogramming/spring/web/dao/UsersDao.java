@@ -24,15 +24,15 @@ public class UsersDao {
 
 	@Autowired
 	private SessionFactory sessionFactory;
+	
+	public Session session() {
+		return sessionFactory.getCurrentSession();
+	}
 
 //	@Autowired
 //	public void setDataSource(DataSource jdbc) {
 //		this.jdbc = new NamedParameterJdbcTemplate(jdbc);
 //	}
-
-	public Session session() {
-		return sessionFactory.getCurrentSession();
-	}
 
 	@Transactional
 	public void create(User user) {
