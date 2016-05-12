@@ -120,7 +120,7 @@ public class OffersDaoTests {
 	}
 
 	@Test
-	public void testUpdate(){
+	public void testUpdate() {
 		userDao.create(user1);
 		userDao.create(user2);
 		userDao.create(user3);
@@ -133,17 +133,17 @@ public class OffersDaoTests {
 		offersDao.saveOrUpdate(offer5);
 		offersDao.saveOrUpdate(offer6);
 		offersDao.saveOrUpdate(offer7);
-		
+
 		offer3.setText("This is all new text.");
 		offersDao.saveOrUpdate(offer3);
-		
+
 		Offer retreived = offersDao.getOffer(offer3.getId());
-		
-		assertEquals("Retreived offer should be updated.",offer3, retreived);
+
+		assertEquals("Retreived offer should be updated.", offer3, retreived);
 	}
-	
+
 	@Test
-	public void testDelete(){
+	public void testDelete() {
 		userDao.create(user1);
 		userDao.create(user2);
 		userDao.create(user3);
@@ -156,69 +156,37 @@ public class OffersDaoTests {
 		offersDao.saveOrUpdate(offer5);
 		offersDao.saveOrUpdate(offer6);
 		offersDao.saveOrUpdate(offer7);
-		
+
 		Offer retreived1 = offersDao.getOffer(offer2.getId());
-		assertNotNull("Offer with id: "+retreived1.getId() + "should not be null.",retreived1);
+		assertNotNull("Offer with id: " + retreived1.getId()
+				+ "should not be null.", retreived1);
 
 		offersDao.delete(offer2.getId());
-		
+
 		Offer retreived = offersDao.getOffer(offer2.getId());
-		assertNull("Offer with id: "+retreived.getId() + "should be null.",retreived);
+		assertNull("Offer with id: " + retreived1.getId() + "should be null.",
+				retreived);
 	}
+
 	@Test
-	public void testOffer() {
-		User user = new User("akbar123", "Akbar Hirani", "123456",
-				"akbar@123.com", true, "user");
+	public void testGetByID() {
+		userDao.create(user1);
+		userDao.create(user2);
+		userDao.create(user3);
+		userDao.create(user4);
 
-		userDao.create(user);
-
-		assertTrue("Offer update should be true.",
-				userDao.exists(user.getUsername()));
-
-		Offer offer = new Offer(user, "This is a test offer");
-
-		offersDao.saveOrUpdate(offer);
-
-		List<Offer> offers = offersDao.getOffers();
-
-		assertEquals("Number of users should be 1", 1, offers.size());
-
-		assertEquals("Created offer should be identical to retreived offer",
-				offer, offers.get(0));
-
-		offer = offers.get(0);
-		offer.setText("New text.");
-
-		offersDao.saveOrUpdate(offer);
-
-		Offer updated = offersDao.getOffer(offer.getId());
-
-		assertEquals("Updated offer should match retreived updated offer.",
-				offer, updated);
-
-		// Test get by ID
-		Offer offer2 = new Offer(user, "This is a test offer.");
-
+		offersDao.saveOrUpdate(offer1);
 		offersDao.saveOrUpdate(offer2);
+		offersDao.saveOrUpdate(offer3);
+		offersDao.saveOrUpdate(offer4);
+		offersDao.saveOrUpdate(offer5);
+		offersDao.saveOrUpdate(offer6);
+		offersDao.saveOrUpdate(offer7);
 
-		List<Offer> useroffers = offersDao.getOffers(user.getUsername());
-		assertEquals("Number of offer should be 2.", 2, useroffers.size());
+		Offer retrieved1 = offersDao.getOffer(offer1.getId());
+		assertEquals("offers should match", offer1, retrieved1);
 
-		List<Offer> list2 = offersDao.getOffers();
-
-		for (Offer current : list2) {
-			Offer retreived = offersDao.getOffer(current.getId());
-
-			assertEquals("Offer by ID should match offer from list", current,
-					retreived);
-		}
-
-		// Test deletion
-		offersDao.delete(offer.getId());
-
-		List<Offer> empty = offersDao.getOffers();
-
-		assertEquals("Number of offers should be 1.", 1, empty.size());
+		Offer retrieved2 = offersDao.getOffer(offer7.getId());
+		assertNull("Should not retrieve offer for disabled user.", retrieved2);
 	}
-
 }
